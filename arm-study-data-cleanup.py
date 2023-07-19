@@ -19,15 +19,27 @@ aSheet = aWorkbook.active
 sWorkbook = Workbook()
 sSheet = sWorkbook.active
 
+
 def main():
+
+    uSheetFunc()
+
+    aSheetFunc()
+
+    sSheetFunc()
+
+    csvFunc()
+
+
+
+## UPDATES THE ORIGINAL EXCEL SHEET BY CONVERTING ALL COLUMNS INTO ROWS AND DELETE UNNECESSARY DATA
+def uSheetFunc():
 
     # adds "blank"/title row to uSheet help with pandas processing
     uSheet["A1"] = "1Title"
 
+    ## CONVERT (columns into rows)
 
-    ##CONVERT ALL COLUMNS INTO ROWS 
-
-    #for every columm
     for i in range(1, oSheet.max_column):
         names = []
 
@@ -40,7 +52,6 @@ def main():
         for b in range(len(names)):
             temp = names[b]
             uSheet.cell(row=i+1, column=b+1).value = temp
-
 
 
     ## CLEAN OUT (delete rows that deal with not-arm specific data, timing, free-response answers, and price senstivity questions)
@@ -74,8 +85,10 @@ def main():
     uWorkbook.save(filename="Documents/REU/updated-arm-study-data.xlsx")
 
 
-    ## AVERAGED WORKBOOK
 
+## AVERAGED WORKBOOK -- AVERAGES ALL PARTIPANT VALUES AND PUTS INTO ONE COLUMN
+def aSheetFunc():
+    
     num_col = uSheet.max_column
 
     #copy over names from uSheet first column to aSheet first column
@@ -111,7 +124,9 @@ def main():
 
 
 
-    ## SIMPLIFIED WORKBOOK
+## SIMPLIFIED WORKBOOK -- COMBINES QUESTION GROUPS INTO SINGLE ROW MY AVERAGING DATA (Q1-6 collapsed to "competency", Q7-12 to "discomfort", Q1-3 to "safety")
+##          THEN ADDED ALL VALUES TO NEW FILE
+def sSheetFunc():
     
     disc1, comp1, saf1 = simplify("1")
     disc2, comp2, saf2 = simplify("2")
@@ -124,13 +139,43 @@ def main():
     disc9, comp9, saf9 = simplify("9")
 
     for i in range(1, 28):
-        if i % 3 == 1:
-            insert("A", i, str(math.ceil(i/3)) + "_Discomfort" ) 
-        elif i % 3 == 2:
-            insert("A", i, str(math.ceil(i/3)) + "_Competency" ) 
+        if i % 3 == 2:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort" ) 
+        elif i % 3 == 1:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Competency" ) 
         elif i % 3 == 0:
-            insert("A", i, str(math.ceil(i/3)) + "_Safety" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Safety" ) 
 
+    insert("A", 1, "Title" ) 
+    insert("B", 1, "Average") 
+
+    insert("B", 2, disc1)
+    insert("B", 3, comp1) 
+    insert("B", 4, saf1) 
+    insert("B", 5, disc2) 
+    insert("B", 6, comp2) 
+    insert("B", 7, saf2) 
+    insert("B", 8, disc3) 
+    insert("B", 9, comp3) 
+    insert("B", 10, saf3) 
+    insert("B", 11, disc4) 
+    insert("B", 12, comp4)
+    insert("B", 13, saf4) 
+    insert("B", 14, disc5) 
+    insert("B", 15, comp5) 
+    insert("B", 16, saf5) 
+    insert("B", 17, disc6) 
+    insert("B", 18, comp6) 
+    insert("B", 19, saf6)
+    insert("B", 20, disc7)
+    insert("B", 21, comp7) 
+    insert("B", 22, saf7) 
+    insert("B", 23, disc8) 
+    insert("B", 24, comp8) 
+    insert("B", 25, saf8)  
+    insert("B", 26, disc9) 
+    insert("B", 27, comp9) 
+    insert("B", 28, saf9)  
 
 
     # save into new excel file
@@ -138,37 +183,9 @@ def main():
 
 
 
-    ## CREATING CSV FILES
-    #https://www.studytonight.com/post/converting-xlsx-file-to-csv-file-using-python#:~:text=You%20can%20use%20openpyxl%20to,standard%20file%20I%2FO%20operations.
-    uCsv = open("Documents/REU/updated-arm-study-data.csv", "w+")
-    sCsv = open("Documents/REU/averaged-arm-study-data.csv", "w+")
-
-    #for updated sheet
-    for row in uSheet.rows:
-        l = list(row)
-        for i in range(len(l)):
-            if i == len(l) - 1:
-                uCsv.write(str(l[i].value))
-                uCsv.write('\n')
-            else:
-                uCsv.write(str(l[i].value) + ',')
-
-    #for averaged sheet
-    for row in aSheet.rows:
-        l = list(row)
-        for i in range(len(l)):
-            if i == len(l) - 1:
-                sCsv.write(str(l[i].value))
-                sCsv.write('\n')
-            else:
-                sCsv.write(str(l[i].value) + ',')
-            
-    uCsv.close()
-    sCsv.close()
-
-
-
+#SIMPLIFIES THE QUESTION GROUPS AND RETURNS AVERAGE FOR EACH GROUP
 def simplify(num):
+
     comp = ["1", "2", "3", "4", "5", "6"]
     disc = ["7", "8", "9", "10", "11", "12"]
 
@@ -203,6 +220,7 @@ def simplify(num):
                 saf1 += value
                 
 
+    #compute averages
     discomfort = disc1/6
     competency = comp1/6
     safety = saf1/3
@@ -211,9 +229,54 @@ def simplify(num):
 
 
 
+#INSERTS INFO. INTO SPECIFIED LOCATION IN SSHEET
 def insert(col, row, val):
     loc = col + str(row)
     sSheet[loc] = val
+
+
+
+#SAVES EXCEL FILES IN CSV FORMAT
+def csvFunc():
+    ## CREATING CSV FILES
+    #https://www.studytonight.com/post/converting-xlsx-file-to-csv-file-using-python#:~:text=You%20can%20use%20openpyxl%20to,standard%20file%20I%2FO%20operations.
+    uCsv = open("Documents/REU/updated-arm-study-data.csv", "w+")
+    aCsv = open("Documents/REU/averaged-arm-study-data.csv", "w+")
+    sCsv = open("Documents/REU/simplified-arm-study-data.csv", "w+")
+
+    #for updated sheet
+    for row in uSheet.rows:
+        l = list(row)
+        for i in range(len(l)):
+            if i == len(l) - 1:
+                uCsv.write(str(l[i].value))
+                uCsv.write('\n')
+            else:
+                uCsv.write(str(l[i].value) + ',')
+
+    #for averaged sheet
+    for row in aSheet.rows:
+        l = list(row)
+        for i in range(len(l)):
+            if i == len(l) - 1:
+                aCsv.write(str(l[i].value))
+                aCsv.write('\n')
+            else:
+                aCsv.write(str(l[i].value) + ',')
+
+    #for simplified sheet
+    for row in sSheet.rows:
+        l = list(row)
+        for i in range(len(l)):
+            if i == len(l) - 1:
+                sCsv.write(str(l[i].value))
+                sCsv.write('\n')
+            else:
+                sCsv.write(str(l[i].value) + ',')
+            
+    uCsv.close()
+    aCsv.close()
+    sCsv.close()
 
 
 main()
