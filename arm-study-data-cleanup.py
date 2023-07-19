@@ -72,25 +72,31 @@ uWorkbook.save(filename="Documents/REU/updated-arm-study-data.xlsx")
 comp = ["1", "2", "3", "4", "5", "6"]
 disc = ["7", "8", "9", "10", "11", "12"]
 
+
+rows = uSheet.iter_rows(min_row=2, max_row=6, max_col=1, values_only=True)
+values = [row[0] for row in rows]
+print(values)
+avg = sum(values) / len(values)
+
 #for each row in the sheet
-for row in uSheet:
+#for row in uSheet:
 
     #value in first column
-    string = str(row[0].value) 
+#    string = str(row[0].value) 
 
     # first letter of value in first column
-    first_letter = string[0]
+#    first_letter = string[0]
 
     # last letter of value in first column
-    last_2letter = string[::-1][0:2]
+#    last_2letter = string[::-1][0:2]
 
     #removes "11" and "12" questions
-    if not last_2letter.isnumeric():
-        last_letter = string[-1]
+ #   if not last_2letter.isnumeric():
+ #       last_letter = string[-1]
         #only gets questions surrounding competency
-        if "comp" in string and any([x in last_letter for x in comp]):
-            for i in range(uSheet.max_column):
-                sSheet.add(row)
+#        if "comp" in string and any([x in last_letter for x in comp]):
+ #           for i in range(uSheet.max_column):
+ #               sSheet.add(row)
                 
 
 
