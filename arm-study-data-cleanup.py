@@ -30,8 +30,6 @@ def main():
 
     qSheetFunc()
 
-    simplify2("1", 2)
-
     aSheetFunc()
 
     sSheetFunc()
@@ -97,28 +95,60 @@ def qSheetFunc():
 
     for i in range(1, 28):
         if i % 3 == 2:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", qSheet ) 
         elif i % 3 == 1:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Competency" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Competency", qSheet ) 
         elif i % 3 == 0:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Safety" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Safety", qSheet ) 
 
+    #Arm number
     j= 1
-    k = 2
 
-    for i in range(2, uSheet.max_column):
-        comp, disc, saf = simplify2(j, i)
+    #i can be used for column number
+    for i in range(2, (uSheet.max_column + 1)):
+        comp1, disc1, saf1 = simplify2(j, i)
+        comp2, disc2, saf2 = simplify2(j, i)
+        comp3, disc3, saf3 = simplify2(j, i)
+        comp4, disc4, saf4 = simplify2(j, i)
+        comp5, disc5, saf5 = simplify2(j, i)
+        comp6, disc6, saf6 = simplify2(j, i)
+        comp7, disc7, saf7 = simplify2(j, i)
+        comp8, disc8, saf8 = simplify2(j, i)
+        comp9, disc9, saf9 = simplify2(j, i)
 
-        qSheet.cell(row=k, column=i).value = comp
-        qSheet.cell(row=k+1, column=i).value = disc
-        qSheet.cell(row=k+2, column=i).value = saf
+        qSheet.cell(row=2, column=i).value = comp1
+        qSheet.cell(row=3, column=i).value = disc1
+        qSheet.cell(row=4, column=i).value = saf1
+        qSheet.cell(row=5, column=i).value = comp2
+        qSheet.cell(row=6, column=i).value = disc2
+        qSheet.cell(row=7, column=i).value = saf2
+        qSheet.cell(row=8, column=i).value = comp3
+        qSheet.cell(row=9, column=i).value = disc3
+        qSheet.cell(row=10, column=i).value = saf3
+        qSheet.cell(row=11, column=i).value = comp4
+        qSheet.cell(row=12, column=i).value = disc4
+        qSheet.cell(row=13, column=i).value = saf4
+        qSheet.cell(row=14, column=i).value = comp5
+        qSheet.cell(row=15, column=i).value = disc5
+        qSheet.cell(row=16, column=i).value = saf5
+        qSheet.cell(row=17, column=i).value = comp6
+        qSheet.cell(row=18, column=i).value = disc6
+        qSheet.cell(row=19, column=i).value = saf6
+        qSheet.cell(row=20, column=i).value = comp7
+        qSheet.cell(row=21, column=i).value = disc7
+        qSheet.cell(row=22, column=i).value = saf7
+        qSheet.cell(row=23, column=i).value = comp8
+        qSheet.cell(row=24, column=i).value = disc8
+        qSheet.cell(row=25, column=i).value = saf8
+        qSheet.cell(row=26, column=i).value = comp9
+        qSheet.cell(row=27, column=i).value = disc9
+        qSheet.cell(row=28, column=i).value = saf9
 
         j+=1
-        k+=3
 
 
     # save into new excel file
-    qWorkbook.save(filename="Documents/REU/averages-questions-arm-study-data.xlsx")
+    qWorkbook.save(filename="Documents/REU/averaged-questions-arm-study-data.xlsx")
 
 ## AVERAGED WORKBOOK -- AVERAGES ALL PARTIPANT VALUES AND PUTS INTO ONE COLUMN
 def aSheetFunc():
@@ -174,42 +204,42 @@ def sSheetFunc():
 
     for i in range(1, 28):
         if i % 3 == 2:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", sSheet ) 
         elif i % 3 == 1:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Competency" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Competency", sSheet ) 
         elif i % 3 == 0:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Safety" ) 
+            insert("A", i+1, str(math.ceil(i/3)) + "_Safety", sSheet ) 
 
-    insert("A", 1, "Title" ) 
-    insert("B", 1, "Average") 
+    insert("A", 1, "Title", sSheet ) 
+    insert("B", 1, "Average", sSheet ) 
 
-    insert("B", 2, disc1)
-    insert("B", 3, comp1) 
-    insert("B", 4, saf1) 
-    insert("B", 5, disc2) 
-    insert("B", 6, comp2) 
-    insert("B", 7, saf2) 
-    insert("B", 8, disc3) 
-    insert("B", 9, comp3) 
-    insert("B", 10, saf3) 
-    insert("B", 11, disc4) 
-    insert("B", 12, comp4)
-    insert("B", 13, saf4) 
-    insert("B", 14, disc5) 
-    insert("B", 15, comp5) 
-    insert("B", 16, saf5) 
-    insert("B", 17, disc6) 
-    insert("B", 18, comp6) 
-    insert("B", 19, saf6)
-    insert("B", 20, disc7)
-    insert("B", 21, comp7) 
-    insert("B", 22, saf7) 
-    insert("B", 23, disc8) 
-    insert("B", 24, comp8) 
-    insert("B", 25, saf8)  
-    insert("B", 26, disc9) 
-    insert("B", 27, comp9) 
-    insert("B", 28, saf9)  
+    insert("B", 2, disc1, sSheet )
+    insert("B", 3, comp1, sSheet ) 
+    insert("B", 4, saf1, sSheet ) 
+    insert("B", 5, disc2, sSheet ) 
+    insert("B", 6, comp2, sSheet ) 
+    insert("B", 7, saf2, sSheet ) 
+    insert("B", 8, disc3, sSheet ) 
+    insert("B", 9, comp3, sSheet ) 
+    insert("B", 10, saf3, sSheet ) 
+    insert("B", 11, disc4, sSheet ) 
+    insert("B", 12, comp4, sSheet )
+    insert("B", 13, saf4, sSheet ) 
+    insert("B", 14, disc5, sSheet ) 
+    insert("B", 15, comp5, sSheet ) 
+    insert("B", 16, saf5, sSheet ) 
+    insert("B", 17, disc6, sSheet ) 
+    insert("B", 18, comp6, sSheet ) 
+    insert("B", 19, saf6, sSheet )
+    insert("B", 20, disc7, sSheet )
+    insert("B", 21, comp7, sSheet ) 
+    insert("B", 22, saf7, sSheet ) 
+    insert("B", 23, disc8, sSheet ) 
+    insert("B", 24, comp8, sSheet ) 
+    insert("B", 25, saf8, sSheet )  
+    insert("B", 26, disc9, sSheet ) 
+    insert("B", 27, comp9, sSheet ) 
+    insert("B", 28, saf9, sSheet )  
 
 
     # save into new excel file
@@ -312,9 +342,9 @@ def simplify2(num, col):
 
 
 #INSERTS INFO. INTO SPECIFIED LOCATION IN SSHEET
-def insert(col, row, val):
+def insert(col, row, val, sheet):
     loc = col + str(row)
-    sSheet[loc] = val
+    sheet[loc] = val
 
 
 
