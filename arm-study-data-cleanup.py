@@ -95,26 +95,25 @@ def qSheetFunc():
 
     for i in range(1, 28):
         if i % 3 == 2:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", qSheet ) 
-        elif i % 3 == 1:
             insert("A", i+1, str(math.ceil(i/3)) + "_Competency", qSheet ) 
+        elif i % 3 == 1:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", qSheet ) 
         elif i % 3 == 0:
             insert("A", i+1, str(math.ceil(i/3)) + "_Safety", qSheet ) 
 
-    #Arm number
-    j= 1
 
     #i can be used for column number
     for i in range(2, (uSheet.max_column + 1)):
-        comp1, disc1, saf1 = simplify2(j, i)
-        comp2, disc2, saf2 = simplify2(j, i)
-        comp3, disc3, saf3 = simplify2(j, i)
-        comp4, disc4, saf4 = simplify2(j, i)
-        comp5, disc5, saf5 = simplify2(j, i)
-        comp6, disc6, saf6 = simplify2(j, i)
-        comp7, disc7, saf7 = simplify2(j, i)
-        comp8, disc8, saf8 = simplify2(j, i)
-        comp9, disc9, saf9 = simplify2(j, i)
+        
+        comp1, disc1, saf1 = simplify2(1, i)
+        comp2, disc2, saf2 = simplify2(2, i)
+        comp3, disc3, saf3 = simplify2(3, i)
+        comp4, disc4, saf4 = simplify2(4, i)
+        comp5, disc5, saf5 = simplify2(5, i)
+        comp6, disc6, saf6 = simplify2(6, i)
+        comp7, disc7, saf7 = simplify2(7, i)
+        comp8, disc8, saf8 = simplify2(8, i)
+        comp9, disc9, saf9 = simplify2(9, i)
 
         qSheet.cell(row=2, column=i).value = comp1
         qSheet.cell(row=3, column=i).value = disc1
@@ -144,7 +143,6 @@ def qSheetFunc():
         qSheet.cell(row=27, column=i).value = disc9
         qSheet.cell(row=28, column=i).value = saf9
 
-        j+=1
 
 
     # save into new excel file
@@ -204,9 +202,9 @@ def sSheetFunc():
 
     for i in range(1, 28):
         if i % 3 == 2:
-            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", sSheet ) 
-        elif i % 3 == 1:
             insert("A", i+1, str(math.ceil(i/3)) + "_Competency", sSheet ) 
+        elif i % 3 == 1:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort", sSheet ) 
         elif i % 3 == 0:
             insert("A", i+1, str(math.ceil(i/3)) + "_Safety", sSheet ) 
 
@@ -279,6 +277,7 @@ def simplify(num):
                 #competency questions 
                 else:
                     comp1 += value
+                    
             #safety questions
             elif "Average" not in str(value): 
                 saf1 += value
@@ -304,7 +303,7 @@ def simplify2(num, col):
 
 
     for i in range (2, (uSheet.max_row + 1)):
-        rows = uSheet.iter_cols(min_row=i,  max_col=col, values_only=True)
+        rows = uSheet.iter_cols(min_row=i, max_col=col, values_only=True)
 
         #values in each column of the row
         values = [row[0] for row in rows]
@@ -317,8 +316,8 @@ def simplify2(num, col):
         last_2letter = name[::-1][0:2][::-1]
 
         if str(num) in first_letter:
-            value = values[1]
-            
+            value = values[col-1]
+
             if "comp" in name: 
                 #discomfort questions 
                 if last_2letter.isnumeric() or any([x in last_2letter for x in disc]):
