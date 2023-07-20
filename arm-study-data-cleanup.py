@@ -11,6 +11,10 @@ oSheet = oWorkbook.active
 uWorkbook = Workbook()
 uSheet = uWorkbook.active
 
+#averaged-questions workbook (updated from uWorkbook, averages individual participant answers from question groups) 
+qWorkbook = Workbook()
+qSheet = qWorkbook.active
+
 #averaged workbook (updated from uWorkbook, averages all participant answers per row) 
 aWorkbook = Workbook()
 aSheet = aWorkbook.active
@@ -23,6 +27,10 @@ sSheet = sWorkbook.active
 def main():
 
     uSheetFunc()
+
+    qSheetFunc()
+
+    simplify2("1", 2)
 
     aSheetFunc()
 
@@ -85,6 +93,32 @@ def uSheetFunc():
     uWorkbook.save(filename="Documents/REU/updated-arm-study-data.xlsx")
 
 
+def qSheetFunc():
+
+    for i in range(1, 28):
+        if i % 3 == 2:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Discomfort" ) 
+        elif i % 3 == 1:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Competency" ) 
+        elif i % 3 == 0:
+            insert("A", i+1, str(math.ceil(i/3)) + "_Safety" ) 
+
+    j= 1
+    k = 2
+
+    for i in range(2, uSheet.max_column):
+        comp, disc, saf = simplify2(j, i)
+
+        qSheet.cell(row=k, column=i).value = comp
+        qSheet.cell(row=k+1, column=i).value = disc
+        qSheet.cell(row=k+2, column=i).value = saf
+
+        j+=1
+        k+=3
+
+
+    # save into new excel file
+    qWorkbook.save(filename="Documents/REU/averages-questions-arm-study-data.xlsx")
 
 ## AVERAGED WORKBOOK -- AVERAGES ALL PARTIPANT VALUES AND PUTS INTO ONE COLUMN
 def aSheetFunc():
@@ -204,7 +238,7 @@ def simplify(num):
         #number of the arm 
         first_letter = str(name)[0]
 
-        last_2letter = name[::-1][0:2][::-1]
+        last_2letter = str(name)[::-1][0:2][::-1]
 
         if num in first_letter:
             value = values[1]
@@ -226,6 +260,54 @@ def simplify(num):
     safety = saf1/3
 
     return(discomfort, competency, safety)
+
+
+
+def simplify2(num, col):
+
+    comp = ["1", "2", "3", "4", "5", "6"]
+    disc = ["7", "8", "9", "10", "11", "12"]
+
+    disc1 = 0
+    comp1 = 0
+    saf1 = 0
+
+
+    for i in range (2, (uSheet.max_row + 1)):
+        rows = uSheet.iter_cols(min_row=i,  max_col=col, values_only=True)
+
+        #values in each column of the row
+        values = [row[0] for row in rows]
+
+        name = values[0]
+
+        #number of the arm 
+        first_letter = str(name)[0]
+
+        last_2letter = name[::-1][0:2][::-1]
+
+        if str(num) in first_letter:
+            value = values[1]
+            
+            if "comp" in name: 
+                #discomfort questions 
+                if last_2letter.isnumeric() or any([x in last_2letter for x in disc]):
+                    disc1 += value
+                #competency questions 
+                else:
+                    comp1 += value
+            #safety questions
+            elif "Average" not in str(value): 
+                saf1 += value
+                
+
+    #compute averages
+    discomfort = disc1/6
+    competency = comp1/6
+    safety = saf1/3
+
+    return(discomfort, competency, safety)
+
 
 
 
