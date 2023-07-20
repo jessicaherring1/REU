@@ -93,6 +93,8 @@ def uSheetFunc():
 
 def qSheetFunc():
 
+    #creates new titles for first column
+    #   pattern: armNumber_characteristic
     for i in range(1, 28):
         if i % 3 == 2:
             insert("A", i+1, str(math.ceil(i/3)) + "_Competency", qSheet ) 
@@ -102,9 +104,11 @@ def qSheetFunc():
             insert("A", i+1, str(math.ceil(i/3)) + "_Safety", qSheet ) 
 
 
+    #compiles question averages for each person (all columns except title)
     #i can be used for column number
     for i in range(2, (uSheet.max_column + 1)):
-        
+
+        #gets discomfort, competency, an safety averages for each arm
         comp1, disc1, saf1 = simplify2(1, i)
         comp2, disc2, saf2 = simplify2(2, i)
         comp3, disc3, saf3 = simplify2(3, i)
@@ -115,6 +119,7 @@ def qSheetFunc():
         comp8, disc8, saf8 = simplify2(8, i)
         comp9, disc9, saf9 = simplify2(9, i)
 
+        #places averages into designated spot on qSheet
         qSheet.cell(row=2, column=i).value = comp1
         qSheet.cell(row=3, column=i).value = disc1
         qSheet.cell(row=4, column=i).value = saf1
@@ -143,7 +148,9 @@ def qSheetFunc():
         qSheet.cell(row=27, column=i).value = disc9
         qSheet.cell(row=28, column=i).value = saf9
 
-
+        #adds column headers
+        insert("A", 1, "Title", qSheet ) 
+        insert("B", 1, "Average", qSheet ) 
 
     # save into new excel file
     qWorkbook.save(filename="Documents/REU/averaged-questions-arm-study-data.xlsx")
@@ -157,7 +164,7 @@ def aSheetFunc():
     for i in range (1, (uSheet.max_row + 1)):
         rows = uSheet.iter_cols(min_row=i, max_col=1, values_only=True)
         
-        #all titlese 
+        #all titles 
         values = [row[0] for row in rows]
 
         location = "A" + str(i)
@@ -190,6 +197,7 @@ def aSheetFunc():
 ##          THEN ADDED ALL VALUES TO NEW FILE
 def sSheetFunc():
     
+    #gets discomfort, competency, an safety averages for each arm
     disc1, comp1, saf1 = simplify("1")
     disc2, comp2, saf2 = simplify("2")
     disc3, comp3, saf3 = simplify("3")
@@ -200,6 +208,8 @@ def sSheetFunc():
     disc8, comp8, saf8 = simplify("8")
     disc9, comp9, saf9 = simplify("9")
 
+    #creates new titles for first column
+    #   pattern: armNumber_characteristic
     for i in range(1, 28):
         if i % 3 == 2:
             insert("A", i+1, str(math.ceil(i/3)) + "_Competency", sSheet ) 
@@ -208,9 +218,11 @@ def sSheetFunc():
         elif i % 3 == 0:
             insert("A", i+1, str(math.ceil(i/3)) + "_Safety", sSheet ) 
 
+    #adds column headers
     insert("A", 1, "Title", sSheet ) 
     insert("B", 1, "Average", sSheet ) 
 
+    #places averages into designated spot on sSheet
     insert("B", 2, disc1, sSheet )
     insert("B", 3, comp1, sSheet ) 
     insert("B", 4, saf1, sSheet ) 
@@ -246,15 +258,21 @@ def sSheetFunc():
 
 
 #SIMPLIFIES THE QUESTION GROUPS AND RETURNS AVERAGE FOR EACH GROUP
+#   num is a string (bad naming haha) and represents the arm number
 def simplify(num):
 
+    #question numbers distinguish which characteristic category
+    #   1-6: Competency
+    #   7-12: Discomfort
     comp = ["1", "2", "3", "4", "5", "6"]
     disc = ["7", "8", "9", "10", "11", "12"]
 
+    #accumulator variables for each characteristic
     disc1 = 0
     comp1 = 0
     saf1 = 0
 
+    #loops for number of rows
     for i in range (1, (aSheet.max_row + 1)):
         rows = aSheet.iter_cols(min_row=i, min_col=1, max_col=2, values_only=True)
 
@@ -266,10 +284,15 @@ def simplify(num):
         #number of the arm 
         first_letter = str(name)[0]
 
+        #question number
         last_2letter = str(name)[::-1][0:2][::-1]
 
+        #filters for only questions relating to specific arm given as a parameter
         if num in first_letter:
+
+            #rating in cell
             value = values[1]
+
             if "comp" in name: 
                 #discomfort questions 
                 if last_2letter.isnumeric() or any([x in last_2letter for x in disc]):
@@ -282,7 +305,6 @@ def simplify(num):
             elif "Average" not in str(value): 
                 saf1 += value
                 
-
     #compute averages
     discomfort = disc1/6
     competency = comp1/6
@@ -291,12 +313,18 @@ def simplify(num):
     return(discomfort, competency, safety)
 
 
-
+#VARIATION OF THE SIMPLIFY FUNCTION ABOVE
+#   num is a int that represents the arm number 
+#   col is a number that respresents the column number (one person's answers)
 def simplify2(num, col):
 
+    #question numbers distinguish which characteristic category
+    #   1-6: Competency
+    #   7-12: Discomfort
     comp = ["1", "2", "3", "4", "5", "6"]
     disc = ["7", "8", "9", "10", "11", "12"]
 
+    #accumulator variables for each characteristic
     disc1 = 0
     comp1 = 0
     saf1 = 0
@@ -313,6 +341,7 @@ def simplify2(num, col):
         #number of the arm 
         first_letter = str(name)[0]
 
+        #question number
         last_2letter = name[::-1][0:2][::-1]
 
         if str(num) in first_letter:
@@ -352,6 +381,7 @@ def csvFunc():
     ## CREATING CSV FILES
     #https://www.studytonight.com/post/converting-xlsx-file-to-csv-file-using-python#:~:text=You%20can%20use%20openpyxl%20to,standard%20file%20I%2FO%20operations.
     uCsv = open("Documents/REU/updated-arm-study-data.csv", "w+")
+    qCsv = open("Documents/REU/averaged-questions-arm-study-data.csv", "w+")
     aCsv = open("Documents/REU/averaged-arm-study-data.csv", "w+")
     sCsv = open("Documents/REU/simplified-arm-study-data.csv", "w+")
 
@@ -364,6 +394,17 @@ def csvFunc():
                 uCsv.write('\n')
             else:
                 uCsv.write(str(l[i].value) + ',')
+   
+    #for averaged-questions sheet
+    for row in qSheet.rows:
+        l = list(row)
+        for i in range(len(l)):
+            if i == len(l) - 1:
+                qCsv.write(str(l[i].value))
+                qCsv.write('\n')
+            else:
+                qCsv.write(str(l[i].value) + ',')
+
 
     #for averaged sheet
     for row in aSheet.rows:
@@ -386,6 +427,7 @@ def csvFunc():
                 sCsv.write(str(l[i].value) + ',')
             
     uCsv.close()
+    qCsv.close()
     aCsv.close()
     sCsv.close()
 
@@ -414,29 +456,4 @@ for b in range(len(names)):
         uSheet.cell(row=1, column=b+1).value = temp
 
 
-#EXTRA INCASE NEED LATER
-
-#for each row in the sheet
-for row in uSheet:
-
-    #value in first column
-    string = str(row[0].value) 
-
-    # first letter of value in first column
-    first_letter = string[0]
-
-    # last letter of value in first column
-    last_2letter = string[::-1][0:2]
-
-    #removes "11" and "12" questions
-    if not last_2letter.isnumeric():
-        last_letter = string[-1]
-        #only gets questions surrounding competency
-        if "comp" in string and any([x in last_letter for x in comp]):
-            for i in range(uSheet.max_column):
-                aSheet.add(row)
-
-
-#Comp = ["1", "2", "3", "4", "5", "6"]
-#disc = ["7", "8", "9", "10", "11", "12"]
 '''
