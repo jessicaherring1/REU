@@ -3,23 +3,27 @@
 from openpyxl import Workbook, load_workbook
 import math
 
-# old workbook varibales 
+# workbook that Qualtrics outputs  
 oWorkbook = load_workbook(filename="Documents/REU/old-arm-study-data.xlsx")
 oSheet = oWorkbook.active
 
-# updated workbook (formatted how i like) 
+# updated workbook 
+#    all columns are turned into rows and unnecessary data is deleted 
 uWorkbook = Workbook()
 uSheet = uWorkbook.active
 
-#averaged-questions workbook (updated from uWorkbook, averages individual participant answers from question groups) 
+#averaged-questions workbook 
+#    updated from uWorkbook, averages individual participant answers within each question group
 qWorkbook = Workbook()
 qSheet = qWorkbook.active
 
-#averaged workbook (updated from uWorkbook, averages all participant answers per row) 
+#averaged workbook 
+#    updated from uWorkbook, averages all participant answers per row
 aWorkbook = Workbook()
 aSheet = aWorkbook.active
 
-#simplified workbook (updated from aWorkbook, simplifies questions into their categories (competency, discomfort, etc.)) 
+#simplified workbook 
+#    updated from aWorkbook, simplifies averaged answers into their categories (competency, discomfort, etc.)
 sWorkbook = Workbook()
 sSheet = sWorkbook.active
 
