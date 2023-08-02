@@ -7,13 +7,24 @@ import math
 
 
 # workbook that Qualtrics outputs  
-oWorkbook = load_workbook(filename="excel-sheets/old-arm-study-data2.xlsx")
+oWorkbook = load_workbook(filename="excel-sheets/old-arm-study-data22.xlsx")
 oSheet = oWorkbook.active
 
+# duplicated oWorkbook
+uWorkbook2 = oWorkbook
+uSheet2 = uWorkbook2.active
+
 # updated workbook 
-#    all columns are turned into rows and unnecessary data is deleted 
+#    updated from oWorkbook, all columns are turned into rows and unnecessary data is deleted 
+#    only deals with warmth, discomfort, competency, and safety
 uWorkbook = Workbook()
 uSheet = uWorkbook.active
+
+# updates workbook 2
+#    updated from oWorkbook, all columns are turned into rows and unnecessary data is deleted 
+#    only deals with price sensitivity
+uWorkbook2 = Workbook()
+uSheet2 = uWorkbook2.active
 
 #averaged-questions workbook 
 #    updated from uWorkbook, averages individual participant answers within each question group
@@ -30,6 +41,16 @@ aSheet = aWorkbook.active
 sWorkbook = Workbook()
 sSheet = sWorkbook.active
 
+#price workbook 
+#    updated from oWorkbook2, handles price sensitivity questions
+pWorkbook = Workbook()
+pSheet = pWorkbook.active
+
+#averaged-price workbook 
+#    updated from oWorkbook2, handles price sensitivity questions
+apWorkbook = Workbook()
+apSheet = apWorkbook.active
+
 
 def main():
 
@@ -37,11 +58,17 @@ def main():
 
     uSheetFunc()
 
+    uSheetFunc2()
+
     qSheetFunc()
 
     aSheetFunc()
 
     sSheetFunc()
+
+    pSheetFunc()
+
+    apSheetFunc()
 
     csvFunc()
 
@@ -65,9 +92,8 @@ def eSheetFunc():
 
 
 
-## UPDATES THE ORIGINAL EXCEL SHEET BY CONVERTING ALL COLUMNS INTO ROWS AND DELETE UNNECESSARY DATA
+## UPDATES THE ORIGINAL EXCEL SHEET BY CONVERTING ALL COLUMNS INTO ROWS AND ONLY KEEPING PRICE SENSITIVITY DATA
 def uSheetFunc():
-
     # adds "blank"/title row to uSheet help with pandas processing
     uSheet["A1"] = "1Title"
 
@@ -116,6 +142,58 @@ def uSheetFunc():
 
     # save into new excel file
     uWorkbook.save(filename="excel-sheets/updated-arm-study-data2.xlsx")
+
+
+
+## UPDATES THE ORIGINAL EXCEL SHEET BY CONVERTING ALL COLUMNS INTO ROWS AND DELETE UNNECESSARY DATA
+def uSheetFunc2():
+
+    # adds "blank"/title row to uSheet help with pandas processing
+    uSheet2["A1"] = "1Title"
+
+    ## convert columns into rows
+    for i in range(1, oSheet.max_column):
+        names = []
+
+        #collect all information in column into an array
+        for row in oSheet:
+            name = row[i].value
+            names.append(name)
+
+        #add array into row
+        for b in range(len(names)):
+            temp = names[b]
+            uSheet2.cell(row=i+1, column=b+1).value = temp
+
+
+    ## CLEAN OUT (delete rows that deal with not-priceSensitivity specific data( ex. timing, free-response answers, and rosas/godspeed questions)
+
+    # outer for-loop ensures no lines are skipped as lines are deleted (very inefficient lol sorry)
+    for i in range(1, uSheet2.max_row):
+
+        #for each row in the sheet
+        for row in uSheet2:
+
+            #value in first column
+            string = str(row[0].value) 
+
+            # first letter of value in first column
+            first_letter = string[0]
+
+            #if first letter is not a number, delete the row (deletes non-characteristic questions-- ex. timing, demographics, etc.)
+            if not first_letter.isnumeric() and not "Q53" in string:
+                uSheet2.delete_rows(row[0].row, 1)  
+
+            #if stim, competency, discomfort, warmth, safety, or q49 are substrings within the cell value, delete the row
+            if ("stim" in string) or ("comp" in string) or ("disc" in string) or ("warm" in string) or ("Saf" in string) or ("Q49" in string):
+                uSheet2.delete_rows(row[0].row, 1)   
+
+
+    #delete columns B and C because they contain unnecessary data
+    uSheet2.delete_cols(2, 2) 
+
+    # save into new excel file
+    uWorkbook2.save(filename="excel-sheets/updated-arm-study-data22.xlsx")
 
 
 
@@ -228,7 +306,7 @@ def aSheetFunc():
 
         newValues = []
 
-        #gets rid of 'None' values that prevent doing arithmetic (came as a result of incomplete qualtrics data, maybe won't be a problem later idk)
+        #gets rid of 'None' values that prevent doing arithmetic (came as a result of incomplete qualtrics data, shouldn't be a problem anymore idk)
         for j in range(len(values)):
             if isinstance(values[j] , int):
                 newValues.append(values[j])
@@ -262,10 +340,8 @@ def sSheetFunc():
     warm8, disc8, comp8, saf8 = simplify("8")
     warm9, disc9, comp9, saf9 = simplify("9")
 
-    print(warm9)
-
     #creates new titles for first column
-    #   pattern: armNumber_characteristic
+    #   pattern: armNumber_characteristic (ex. 1_Competency, 4_Safety, etc.)
     for i in range(1, 37):
         if i % 4 == 3:
             insert("A", i+1, str(math.ceil(i/4)) + "_Competency", sSheet ) 
@@ -276,51 +352,148 @@ def sSheetFunc():
         elif i % 4 == 0:
             insert("A", i+1, str(math.ceil(i/4)) + "_Safety", sSheet ) 
 
-    #adds column headers
+    #adds column headers (helps w/ pandas/matplotlib)
     insert("A", 1, "Title", sSheet ) 
     insert("B", 1, "Average", sSheet ) 
 
     #places averages into designated spot on sSheet
-    insert("B", 2, warm1, sSheet )
-    insert("B", 3, disc1, sSheet )
-    insert("B", 4, comp1, sSheet ) 
-    insert("B", 5, saf1, sSheet ) 
-    insert("B", 6, warm2, sSheet )
-    insert("B", 7, disc2, sSheet ) 
-    insert("B", 8, comp2, sSheet ) 
-    insert("B", 9, saf2, sSheet ) 
+    #   sorry this gross, follows a simple pattern though 
+    insert("B",  2, warm1, sSheet )
+    insert("B",  3, disc1, sSheet )
+    insert("B",  4, comp1, sSheet ) 
+    insert("B",  5, saf1,  sSheet ) 
+
+    insert("B",  6, warm2, sSheet )
+    insert("B",  7, disc2, sSheet ) 
+    insert("B",  8, comp2, sSheet ) 
+    insert("B",  9, saf2,  sSheet ) 
+
     insert("B", 10, warm3, sSheet )
     insert("B", 11, disc3, sSheet ) 
     insert("B", 12, comp3, sSheet ) 
-    insert("B", 13, saf3, sSheet ) 
+    insert("B", 13, saf3,  sSheet ) 
+
     insert("B", 14, warm4, sSheet )
     insert("B", 15, disc4, sSheet ) 
     insert("B", 16, comp4, sSheet )
-    insert("B", 17, saf4, sSheet ) 
+    insert("B", 17, saf4,  sSheet ) 
+
     insert("B", 18, warm5, sSheet )
     insert("B", 19, disc5, sSheet ) 
     insert("B", 20, comp5, sSheet ) 
-    insert("B", 21, saf5, sSheet ) 
+    insert("B", 21, saf5,  sSheet ) 
+
     insert("B", 22, warm6, sSheet )
     insert("B", 23, disc6, sSheet ) 
     insert("B", 24, comp6, sSheet ) 
-    insert("B", 25, saf6, sSheet )
+    insert("B", 25, saf6,  sSheet )
+
     insert("B", 26, warm7, sSheet )
     insert("B", 27, disc7, sSheet )
     insert("B", 28, comp7, sSheet ) 
-    insert("B", 29, saf7, sSheet ) 
+    insert("B", 29, saf7,  sSheet ) 
+ 
     insert("B", 30, warm8, sSheet )
     insert("B", 31, disc8, sSheet ) 
     insert("B", 32, comp8, sSheet ) 
-    insert("B", 33, saf8, sSheet )  
+    insert("B", 33, saf8,  sSheet )  
+
     insert("B", 34, warm9, sSheet )
     insert("B", 35, disc9, sSheet ) 
     insert("B", 36, comp9, sSheet )   
-    insert("B", 37, saf9, sSheet )  
+    insert("B", 37, saf9,  sSheet )  
 
 
     # save into new excel file
     sWorkbook.save(filename="excel-sheets/simplified-arm-study-data2.xlsx")
+
+
+# PRICE WORKBOOK-- UPDATED FROM OWORKBOOKK2, HANDLES PRICE-SENSITIVITY QUESTIONS
+#    finds percent difference for each question from what each participant said the kinova arm costs vs what they said the arm they're looking at costs 
+def pSheetFunc():
+
+    #copy over names from uSheet first column to aSheet first column
+    for i in range (1, (uSheet2.max_row + 1)):
+        rows = uSheet2.iter_cols(min_row=i, max_col=1, values_only=True)
+        
+        #all titles 
+        values = [row[0] for row in rows]
+
+        location = "A" + str(i)
+        
+        pSheet[location] = values[0]
+
+
+    for i in range(2, (uSheet2.max_column + 1)):
+        # how much they said the kinova cost
+        kinova = int(uSheet2.cell(row=2, column=i).value)
+
+        # copy that value into the top row of data 
+        pSheet.cell(row=2, column=i).value = kinova
+
+        #for each arm (located in rows 3 - 11)
+        for j in range(3, 12):
+
+            # how much they said this arm costs
+            val = int(uSheet2.cell(row=j, column=i).value) 
+
+            # percent diffence between kinova arm price and this arm price 
+            pDiff = (val - kinova) / kinova
+
+            pSheet.cell(row=j, column=i).value = pDiff
+
+
+    # save into new excel file
+    pWorkbook.save(filename="excel-sheets/price-sensitivity-arm-study-data2.xlsx")
+
+
+# AVERAGED-PRICE WORKBOOK-- UPDATED FROM PWORKBOOK
+#   averages all participant percent differences for each arm and also averages all estimates of kinova arm price
+def apSheetFunc():
+
+    #number of columns (represents number of participants)
+    num_col = pSheet.max_column
+
+    #copy over names from pSheet first column to apSheet first column
+    for i in range (1, (pSheet.max_row + 1)):
+        rows = pSheet.iter_cols(min_row=i, max_col=1, values_only=True)
+        
+        #all titles 
+        values = [row[0] for row in rows]
+
+        location = "A" + str(i)
+        
+        apSheet[location] = values[0]
+
+
+    #averages all participant responses and copy them into second column (same process in aSheetFunc)
+    for i in range (2, (pSheet.max_row + 1)):
+        rows = pSheet.iter_cols(min_row=i, min_col=2, max_col=num_col, values_only=True)
+        
+        #all participant values 
+        values = [row[0] for row in rows]
+
+        newValues = []
+
+        #gets rid of 'None' values that prevent doing arithmetic (came as a result of incomplete qualtrics data, shouldn't be a problem anymore idk)
+        for j in range(len(values)):
+
+            #some are ints and some are floats but both okay, just don't want 'None' values
+            if isinstance(values[j] , int) or isinstance(values[j] , float):
+                newValues.append(values[j])
+
+        avg = sum(newValues) / len(newValues)
+
+        location = "B" + str(i)
+
+        apSheet[location] = avg
+
+    #column title
+    apSheet["B1"] = "Average"
+
+    # save into new excel file
+    apWorkbook.save(filename="excel-sheets/averaged-price-arm-study-data2.xlsx")
+
 
 
 
@@ -368,7 +541,6 @@ def simplify(num):
             value = values[1]
         
             if isinstance(value, float):
-                print(value)
 
                 if "comp" in name: 
                     #warmth questions 
@@ -413,25 +585,33 @@ def simplify2(num, col, sheet):
 
 
     for i in range (2, (sheet.max_row + 1)):
+    
+        #all the rows from value of 'i' to end of data
         rows = sheet.iter_cols(min_row=i, max_col=col, values_only=True)
 
-        #values in each column of the row
+        #values in each column of the top row (current 'i' value)
         values = [row[0] for row in rows]
 
+        #value in far left column of current row (arm number and char. ex. 1_Warmth)
         name = values[0]
 
-        #number of the arm 
+        #number of the arm (ex. 1)
         first_letter = str(name)[0]
 
-        #question number
+        #question number (see breakdown above)
+        #   gets last two letters because some question numbers are two digits. For one digit numbers, this will return "_1", "_2", etc. 
         last_2letter = name[::-1][0:2][::-1]
 
         #last number 
         last_letter = name[-1]
 
+        #if this data pertains to the arm number given by the function parameters
         if str(num) in first_letter:
+
             value = values[col-1]
         
+            # prevents 'None' values from entering this state (which throws errors)
+            #    shouldn't be a problem anymore but leaving for increased error checking
             if isinstance(value, int):
 
                 if "comp" in name: 
