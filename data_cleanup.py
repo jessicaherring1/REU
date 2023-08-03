@@ -7,7 +7,7 @@ import math
 
 
 # workbook that Qualtrics outputs  
-oWorkbook = load_workbook(filename="excel-sheets/old-arm-study-data22.xlsx")
+oWorkbook = load_workbook(filename="excel-sheets/old-survey-data.xlsx")
 oSheet = oWorkbook.active
 
 # duplicated oWorkbook
@@ -45,6 +45,11 @@ sSheet = sWorkbook.active
 #    updated from oWorkbook2, handles price sensitivity questions
 pWorkbook = Workbook()
 pSheet = pWorkbook.active
+
+#price 2 workbook 
+#    updated from pWorkbook, shifts all rows into columns (for matplotlib box plots)
+pWorkbook2 = Workbook()
+pSheet2 = pWorkbook.active
 
 #averaged-price workbook 
 #    updated from oWorkbook2, handles price sensitivity questions
@@ -141,7 +146,7 @@ def uSheetFunc():
     uSheet.delete_cols(2, 2) 
 
     # save into new excel file
-    uWorkbook.save(filename="excel-sheets/updated-arm-study-data2.xlsx")
+    uWorkbook.save(filename="excel-sheets/updated-arm-study-data.xlsx")
 
 
 
@@ -193,7 +198,7 @@ def uSheetFunc2():
     uSheet2.delete_cols(2, 2) 
 
     # save into new excel file
-    uWorkbook2.save(filename="excel-sheets/updated-arm-study-data22.xlsx")
+    uWorkbook2.save(filename="excel-sheets/updated-arm-study-data.xlsx")
 
 
 
@@ -274,7 +279,7 @@ def qSheetFunc():
         insert("B", 1, "Average", qSheet ) 
 
     # save into new excel file
-    qWorkbook.save(filename="excel-sheets/averaged-questions-arm-study-data2.xlsx")
+    qWorkbook.save(filename="excel-sheets/averaged-questions-arm-study-data.xlsx")
 
 
 
@@ -321,7 +326,7 @@ def aSheetFunc():
     aSheet["B1"] = "Average"
 
     # save into new excel file
-    aWorkbook.save(filename="excel-sheets/averaged-arm-study-data2.xlsx")
+    aWorkbook.save(filename="excel-sheets/averaged-arm-study-data.xlsx")
 
 
 
@@ -405,7 +410,7 @@ def sSheetFunc():
 
 
     # save into new excel file
-    sWorkbook.save(filename="excel-sheets/simplified-arm-study-data2.xlsx")
+    sWorkbook.save(filename="excel-sheets/simplified-arm-study-data.xlsx")
 
 
 # PRICE WORKBOOK-- UPDATED FROM OWORKBOOKK2, HANDLES PRICE-SENSITIVITY QUESTIONS
@@ -426,25 +431,28 @@ def pSheetFunc():
 
     for i in range(2, (uSheet2.max_column + 1)):
         # how much they said the kinova cost
-        kinova = int(uSheet2.cell(row=2, column=i).value)
 
-        # copy that value into the top row of data 
-        pSheet.cell(row=2, column=i).value = kinova
+        kinova = uSheet2.cell(row=2, column=i).value
 
-        #for each arm (located in rows 3 - 11)
-        for j in range(3, 12):
+        if isinstance(kinova, int):
 
-            # how much they said this arm costs
-            val = int(uSheet2.cell(row=j, column=i).value) 
+            # copy that value into the top row of data 
+            pSheet.cell(row=2, column=i).value = kinova
 
-            # percent diffence between kinova arm price and this arm price 
-            pDiff = (val - kinova) / kinova
+            #for each arm (located in rows 3 - 11)
+            for j in range(3, 12):
 
-            pSheet.cell(row=j, column=i).value = pDiff
+                # how much they said this arm costs
+                val = int(uSheet2.cell(row=j, column=i).value) 
+
+                # percent diffence between kinova arm price and this arm price 
+                pDiff = (val - kinova) / kinova
+
+                pSheet.cell(row=j, column=i).value = pDiff
 
 
     # save into new excel file
-    pWorkbook.save(filename="excel-sheets/price-sensitivity-arm-study-data2.xlsx")
+    pWorkbook.save(filename="excel-sheets/price-sensitivity-arm-study-data.xlsx")
 
 
 # AVERAGED-PRICE WORKBOOK-- UPDATED FROM PWORKBOOK
@@ -492,8 +500,7 @@ def apSheetFunc():
     apSheet["B1"] = "Average"
 
     # save into new excel file
-    apWorkbook.save(filename="excel-sheets/averaged-price-arm-study-data2.xlsx")
-
+    apWorkbook.save(filename="excel-sheets/averaged-price-arm-study-data.xlsx")
 
 
 
@@ -666,6 +673,7 @@ def csvFunc():
     qCsv = open("excel-sheets/averaged-questions-arm-study-data.csv", "w+")
     aCsv = open("excel-sheets/averaged-arm-study-data.csv", "w+")
     sCsv = open("excel-sheets/simplified-arm-study-data.csv", "w+")
+    pCsv = open("excel-sheets/price-arm-study-data.csv", "w+")
 
     #for updated sheet
     for row in uSheet.rows:
@@ -706,10 +714,21 @@ def csvFunc():
                 sCsv.write('\n')
             else:
                 sCsv.write(str(l[i].value) + ',')
+
+    #for price-column sheet
+    for row in pSheet.rows:
+        l = list(row)
+        for i in range(len(l)):
+            if i == len(l) - 1:
+                pCsv.write(str(l[i].value))
+                pCsv.write('\n')
+            else:
+                pCsv.write(str(l[i].value) + ',')
             
     uCsv.close()
     qCsv.close()
     aCsv.close()
+    sCsv.close()
     sCsv.close()
 
 
