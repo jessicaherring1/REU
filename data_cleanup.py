@@ -56,6 +56,16 @@ pSheet2 = pWorkbook.active
 apWorkbook = Workbook()
 apSheet = apWorkbook.active
 
+#charactersitic-1 workbook 
+#    updated from oWorkbook, only deals with arms relating to characterstic one
+c1Workbook = Workbook()
+c1Sheet = c1Workbook.active
+
+#charactersitic-2 workbook 
+#    updated from oWorkbook, handles price sensitivity questions
+c2Workbook = Workbook()
+c2Sheet = c2Workbook.active
+
 
 def main():
 
