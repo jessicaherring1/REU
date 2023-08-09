@@ -208,7 +208,7 @@ def uSheetFunc2():
     uSheet2.delete_cols(2, 2) 
 
     # save into new excel file
-    uWorkbook2.save(filename="excel-sheets/updated-arm-study-data.xlsx")
+    uWorkbook2.save(filename="excel-sheets/updated-arm-study-data2.xlsx")
 
 
 
